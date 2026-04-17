@@ -94,7 +94,7 @@ if (isset($_GET['recherche']) && !empty($_GET['recherche'])) {
     </div>
     <div class="toolbar-right">
       <button class="btn-secondary">🔽 Filtrer</button>
-      <a href="ajouter-produit.php" class="btn-orange">+ Nouveau Produit</a>
+      <a href="ajoute.php" class="btn-orange">+ Nouveau Produit</a>
     </div>
   </div>
 
@@ -165,12 +165,6 @@ if (isset($_GET['recherche']) && !empty($_GET['recherche'])) {
       <div class="pagination-info">
         Affichage de <?php echo count($affiches); ?> sur <?php echo count($affiches); ?> produits
       </div>
-      <div class="pagination-buttons">
-        <button>Précédent</button>
-        <button class="active">1</button>
-        <button>Suivant</button>
-      </div>
-    </div>
 
   </div><!-- /table-wrapper -->
 

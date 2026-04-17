@@ -41,7 +41,7 @@ $Produits = $select->fetchAll();
 // pour le scan de code barre
 if(isset($_POST['barcode']) && !empty($_POST['barcode'])) {
 
-    $code = $_POST['barcode'];
+    $code = trim($_POST['barcode']);
 
     $sql = "SELECT Id FROM produits WHERE code_barres = :code";
     $stmt = $mysqlClient->prepare($sql);
@@ -152,16 +152,13 @@ if(isset($_POST['validvente'])) {
 ?>
 
 
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Caisse</title>
-
-<link rel="stylesheet" href="style.css">
-
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Caisse</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
@@ -169,17 +166,22 @@ if(isset($_POST['validvente'])) {
 <header class="site-header">
 
   <div class="logo">
-    <img src="logo.jpg" alt="Logo">
+    <img src="logo.jpg" alt="CaisseShop">
   </div>
 
   <nav class="menu">
-    <a href="caisse.php" class="active">Caisse</a>
-    <a href="produits.php">Produits</a>
-    <a href="historique.php">Historique</a>
-    <a href="connexion.php">Connexion</a>
+    <a href="caisse.php" class="active">🛒 Caisse</a>
+    <a href="produits.php" >📦 Produits</a>
+    <a href="historique.php">🕐 Ventes</a>
   </nav>
 
+  <div class="header-right">
+    <span class="session-info">👤 Session : <?php echo $_SESSION['utilisateur']['nom']; ?></span>
+    <button class="btn-deconnexion">↩ Déconnexion</button>
+  </div>
+
 </header>
+
 
 <div class="pos-page">
 
@@ -289,21 +291,38 @@ if(isset($_POST['validvente'])) {
 
 </div>
 <script>
+function azertyToQwerty(text) {
+    const map = {
+        a:"q", z:"w", e:"e", r:"r", t:"t", y:"y", u:"u", i:"i", o:"o", p:"p",
+        q:"a", s:"s", d:"d", f:"f", g:"g", h:"h", j:"j", k:"k", l:"l", m:"m",
+        w:"z", x:"x", c:"c", v:"v", b:"b", n:"n",
+        A:"Q", Z:"W", E:"E", R:"R", T:"T", Y:"Y",
+        U:"U", I:"I", O:"O", P:"P",
+        Q:"A", S:"S", D:"D", F:"F", G:"G",
+        H:"H", J:"J", K:"K", L:"L", M:"M",
+        W:"Z", X:"X", C:"C", V:"V", B:"B", N:"N"
+    };
+
+    return text.split("").map(c => map[c] || c).join("");
+}
+
 document.getElementById("scan").addEventListener("keydown", function(e) {
 
     if (e.key === "Enter") {
 
-        fetch("ton_script.php", {
+        let barcode = azertyToQwerty(this.value);
+
+        fetch("caisse.php", {
             method: "POST",
             headers: {
                 "Content-Type": "application/x-www-form-urlencoded"
             },
-            body: "barcode=" + encodeURIComponent(this.value)
-        });
+            body: "barcode=" + encodeURIComponent(barcode)
+        })
+        .then(() => location.reload());
 
         this.value = "";
     }
-
 });
 </script>
 </body>

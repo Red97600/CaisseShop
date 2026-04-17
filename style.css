@@ -836,6 +836,17 @@ tbody td {
   border: 1px solid var(--border);
 }
 
+.field-select{
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-dark);
+  padding: 9px 13px;
+  background: var(--bg-page);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+}
+
+
 .field-row .field-value.big {
   font-size: 1.1rem;
   font-weight: 800;
