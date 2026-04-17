@@ -7,8 +7,8 @@ if (!isset($_SESSION['utilisateur'])) {
     exit;
 }
 
+//-------------------------------------------------------------CONNEXION A LA BASE DE DONNE---------------------------------------------------------------------------------
 
-// Connexion à la base de données
 try
 {
     $mysqlClient = new PDO('mysql:host=localhost;dbname=caisseshop;charset=utf8', 'root', '');
@@ -18,8 +18,8 @@ catch (Exception $e)
     die('Erreur : ' . $e->getMessage());
 }
 
+//-------------------------------------------------Récupération des produits en fonction de la catégorie sélectionnée---------------------------------------------------------
 
-// Récupération des produits en fonction de la catégorie sélectionnée
 $categorie ='tous'; // Valeur par défaut pour afficher tous les produits
 
 if(isset($_GET['categorie']) && !empty($_GET['categorie'])) {
@@ -35,10 +35,10 @@ if($categorie == 'tous') {
     $select = $mysqlClient->prepare($sqlQuery);
     $select->execute(['categorie' => $categorie]);
 }
-
 $Produits = $select->fetchAll();
 
-// pour le scan de code barre
+//------------------------------------------------------AJOUTE DE PRODUI AVEC SCANE--------------------------------------------------------------------------------------
+
 if(isset($_POST['barcode']) && !empty($_POST['barcode'])) {
 
     $code = trim($_POST['barcode']);
@@ -59,7 +59,7 @@ if(isset($_POST['barcode']) && !empty($_POST['barcode'])) {
     }
 }
 
-// Gestion du panier
+//-------------------------------------------------------------------------------CREATION du panier-------------------------------------------------------------------------------
 if(isset($_POST['action']) && isset($_POST['id'])) {
     $id = (int) $_POST['id'];
 
@@ -96,7 +96,8 @@ if(isset($_POST['action']) && isset($_POST['id'])) {
     }
 }
 
-// Validation de la vente
+//----------------------------------------------------------------------Validation de la vente---------------------------------------------------------------------------------------------
+
 if(isset($_POST['validvente'])) {
 
     if(isset($_SESSION['panier']) && count($_SESSION['panier']) > 0) {
@@ -112,11 +113,13 @@ if(isset($_POST['validvente'])) {
         }
 
         // Enregistrement de la vente dans la base de données
+
         $sqlQuery = 'INSERT INTO ventes (total, Date_creation, Utilisateur_id) VALUES (:total, NOW(), :Utilisateur_id)';
         $insert = $mysqlClient->prepare($sqlQuery);
         $insert->execute(['total' => $total, 'Utilisateur_id' => $_SESSION['utilisateur']['nom']]);
 
         // Récupération de l'ID de la vente pour enregistrer les détails
+
         $venteId = $mysqlClient->lastInsertId();
 
         for($i = 0; $i < count($ids); $i++) {
@@ -142,7 +145,6 @@ if(isset($_POST['validvente'])) {
                 'id' => $id
             ]);
         }
-
         // Réinitialisation du panier après validation
         unset($_SESSION['panier']);
     }
@@ -190,7 +192,9 @@ if(isset($_POST['validvente'])) {
     <div class="pos-main">
 
       <!-- SEARCH -->
-      <input id="scan" type="text" autofocus placeholder="Scannez un code-barres ou recherchez un produit..." />
+
+        <input id="scan" nom="barcode" type="text" autofocus placeholder="Scannez un code-barres ou recherchez un produit..." />
+      
       <!-- FILTRES -->
       <div class="filters">
         <form method="GET">
@@ -290,39 +294,24 @@ if(isset($_POST['validvente'])) {
   </section>
 
 </div>
-<script>
-function azertyToQwerty(text) {
-    const map = {
-        a:"q", z:"w", e:"e", r:"r", t:"t", y:"y", u:"u", i:"i", o:"o", p:"p",
-        q:"a", s:"s", d:"d", f:"f", g:"g", h:"h", j:"j", k:"k", l:"l", m:"m",
-        w:"z", x:"x", c:"c", v:"v", b:"b", n:"n",
-        A:"Q", Z:"W", E:"E", R:"R", T:"T", Y:"Y",
-        U:"U", I:"I", O:"O", P:"P",
-        Q:"A", S:"S", D:"D", F:"F", G:"G",
-        H:"H", J:"J", K:"K", L:"L", M:"M",
-        W:"Z", X:"X", C:"C", V:"V", B:"B", N:"N"
-    };
 
-    return text.split("").map(c => map[c] || c).join("");
+<script>
+function convertirScan(code){
+    return code.replaceAll("Shift", "") 
+    .replaceAll("à", "0")
+    .replaceAll("&", "1")
+    .replaceAll("é", "2")
+    .replaceAll("\"", "3")
+    .replaceAll("'", "4")
+    .replaceAll("(", "5")
+    .replaceAll("-", "6")
+    .replaceAll("è", "7")
+    .replaceAll("_", "8")
+    .replaceAll("ç", "9");
 }
 
-document.getElementById("scan").addEventListener("keydown", function(e) {
-
-    if (e.key === "Enter") {
-
-        let barcode = azertyToQwerty(this.value);
-
-        fetch("caisse.php", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/x-www-form-urlencoded"
-            },
-            body: "barcode=" + encodeURIComponent(barcode)
-        })
-        .then(() => location.reload());
-
-        this.value = "";
-    }
+document.getElementById("scan").addEventListener("input", function() {
+    this.value = convertirScan(this.value);
 });
 </script>
 </body>
